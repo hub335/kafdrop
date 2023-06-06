@@ -3,6 +3,7 @@ package kafdrop.config;
 import lombok.Data;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.common.config.SaslConfigs;
+import org.apache.kafka.common.protocol.types.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -12,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 
 
@@ -28,11 +30,19 @@ public final class KafkaConfiguration {
   private String propertiesFile;
   private String keystoreFile;
 
+  private Map<String, String> mskAuthentication;
+
   public void applyCommon(Properties properties) {
+
     properties.setProperty(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerConnect);
 
     if (securityProtocol.equals("SSL")) {
       properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, securityProtocol);
+    }
+
+
+    if (saslMechanism.equals("AWS_MSK_IAM")) {
+      properties.putAll(mskAuthentication);
     }
 
     LOG.info("Checking truststore file {}", truststoreFile);

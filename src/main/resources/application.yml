@@ -37,9 +37,15 @@ kafdrop.monitor:
   clientId: Kafdrop
 
 kafka:
-  brokerConnect: localhost:9092
-  saslMechanism: "PLAIN"
-  securityProtocol: "SASL_PLAINTEXT"
+  brokerConnect: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  saslMechanism: ${KAFKA_SASL_MECHANISM:PLAIN}
+  securityProtocol: "${KAFKA_SECURITY_PROTOCOL:SASL_PLAINTEXT}"
   truststoreFile: "${KAFKA_TRUSTSTORE_FILE:kafka.truststore.jks}"
   propertiesFile : "${KAFKA_PROPERTIES_FILE:kafka.properties}"
   keystoreFile: "${KAFKA_KEYSTORE_FILE:kafka.keystore.jks}"
+  msk-authentication:
+    sasl.mechanism: ${KAFKA_SASL_MECHANISM:AWS_MSK_IAM}
+    sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG:software.amazon.msk.auth.iam.IAMLoginModule required;}
+    sasl.client.callback.handler.class: ${KAFKA_SASL_CLIENT_CALLBACK_HANDLER_CLASS:software.amazon.msk.auth.iam.IAMClientCallbackHandler}
+    security.protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
+debug: false

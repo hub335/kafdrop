@@ -33,6 +33,7 @@ import org.springframework.boot.Banner.Mode;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.web.embedded.undertow.UndertowDeploymentInfoCustomizer;
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
@@ -52,6 +53,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 @SpringBootApplication
+@ConfigurationPropertiesScan
 public class Kafdrop {
   private static final Logger LOG = LoggerFactory.getLogger(Kafdrop.class);
 
