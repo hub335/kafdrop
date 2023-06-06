@@ -12,20 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - 
-      name: Set up JDK 17
+    - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-    - 
-      name: app version
+
+    - name: app version
       run: |
         echo "app_ver=$(mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout)"
         echo "app_ver=$(mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-    -
-      name: Build with Maven
+
+    - name: Build with Maven
       run: mvn -B clean integration-test package assembly:single docker:build
 
 
@@ -41,11 +40,33 @@ jobs:
       with:
         install: true
 
-    - name: Build, tag, and push docker image to Amazon ECR
+    - name: Build, tag, and push docker image to github packages
+      if: ${{ ! endsWith( env.app_ver, '-SNAPSHOT' ) }}
+      env:
+        VERSION: ${{ env.app_ver }}
       run: |
         docker buildx create --use
-        docker image build --platform=linux/amd64 -o type=docker -t $REGISTRY/$IMAGE_NAME:$TAG_NAME-amd64 .
-        docker push $REGISTRY/$IMAGE_NAME:$TAG_NAME-amd64
+        docker image build --platform=linux/amd64 -o type=docker -t $REGISTRY/$IMAGE_NAME:$VERSION-amd64 .
+        docker push $REGISTRY/$IMAGE_NAME:$VERSION-amd64
             
-        docker image build --platform=linux/arm64 -o type=docker -t $REGISTRY/$IMAGE_NAME:$TAG_NAME-arm64 .
-        docker push $REGISTRY/$IMAGE_NAME:$TAG_NAME-arm64      
+        docker image build --platform=linux/arm64 -o type=docker -t $REGISTRY/$IMAGE_NAME:$VERSION-arm64 .
+        docker push $REGISTRY/$IMAGE_NAME:$VERSION-arm64  
+        
+
+    - name: Build Changelog
+      id: github_release
+      uses: mikepenz/release-changelog-builder-action@v3
+      if: ${{ ! endsWith( env.app_ver, '-SNAPSHOT' ) }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+    - name: Create Release
+      uses: mikepenz/action-gh-release@v0.2.0-a03 #softprops/action-gh-release
+      if: ${{ ! endsWith( env.app_ver, '-SNAPSHOT' ) }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      with:
+        body: ${{steps.github_release.outputs.changelog}}
+
+        
+
