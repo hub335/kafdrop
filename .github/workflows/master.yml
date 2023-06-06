@@ -5,7 +5,10 @@ name: Release with mvn
 
 on:
   push:
-    branches: [ master ] 
+    branches: [ master ]
+
+env:
+  REGISTRY: ghcr.io
 
 jobs:
   build:
