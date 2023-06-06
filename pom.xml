@@ -250,7 +250,7 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>1.2.2</version>
                 <configuration>
-                    <imageName>obsidiandynamics/kafdrop</imageName>
+                    <imageName>ghcr.io/hub335/kafdrop</imageName>
                     <forceTags>true</forceTags>
                     <dockerDirectory>${project.build.directory}/docker-ready</dockerDirectory>
                     <imageTags>
