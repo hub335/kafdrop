@@ -51,8 +51,9 @@ jobs:
       run: |
         cd src/main/docker
         docker buildx create --use
-        docker image build --platform=linux/amd64 -o type=docker -t $REGISTRY/$IMAGE_NAME:$VERSION-amd64 .
-        docker push $REGISTRY/$IMAGE_NAME:$VERSION-amd64
+        docker image build --platform=linux/amd64 -o type=docker -t $REGISTRY/$IMAGE_NAME:$VERSION-amd64 -t $REGISTRY/$IMAGE_NAME:latest .
+        docker push $REGISTRY/$IMAGE_NAME:$VERSION-amd64 
+        docker push $REGISTRY/$IMAGE_NAME:latest
             
         docker image build --platform=linux/arm64 -o type=docker -t $REGISTRY/$IMAGE_NAME:$VERSION-arm64 .
         docker push $REGISTRY/$IMAGE_NAME:$VERSION-arm64  
@@ -62,11 +63,13 @@ jobs:
       id: github_release
       uses: mikepenz/release-changelog-builder-action@v3
       if: ${{ ! endsWith( env.app_ver, '-SNAPSHOT' ) }}
+      continue-on-error: true
       env:
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
     - name: Create Release
       uses: mikepenz/action-gh-release@v0.2.0-a03 #softprops/action-gh-release
+      continue-on-error: true
       if: ${{ ! endsWith( env.app_ver, '-SNAPSHOT' ) }}
       env:
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
