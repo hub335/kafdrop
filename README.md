@@ -407,3 +407,31 @@ To cut an official release, these are the steps:
 2. You can then edit the release description in GitHub to describe what went into the release.
 
 3. After the release goes through successfully, you need to prepare the repo for the next version, which requires committing the next snapshot version on master again. So we should increment the minor version and add again the `-SNAPSHOT` suffix.
+
+
+## AWS MSK
+To connect to aws msk brokers, you need to add the following configuration
+`KAFKA_SASL_MECHANISM=AWS_MSK_IAM`
+
+If this environment variable is set, it then adds the `msk-authentication stanza` in kafka configuration.
+```yaml
+  msk-authentication:
+    sasl.mechanism: ${KAFKA_SASL_MECHANISM:AWS_MSK_IAM}
+    sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG:software.amazon.msk.auth.iam.IAMLoginModule required;}
+    sasl.client.callback.handler.class: ${KAFKA_SASL_CLIENT_CALLBACK_HANDLER_CLASS:software.amazon.msk.auth.iam.IAMClientCallbackHandler}
+    security.protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
+```
+Because aws uses `aws-msk-iam-auth` to aid aws credential handling, you need to provide your aws credentials as standard aws environment variables
+
+```shell
+AWS_ACCESS_KEY_ID=xxxxxxxxxxxx
+AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxx
+```
+
+```shell
+AWS_ACCESS_KEY_ID=<aws-access-key>
+AWS_SECRET_ACCESS_KEY=<aws-secret-key>
+KAFKA_SASL_MECHANISM=AWS_MSK_IAM
+KAFKA_BOOTSTRAP_SERVERS=<your-cluster-endpoint>
+KAFKA_SECURITY_PROTOCOL=SASL_SSL
+```
